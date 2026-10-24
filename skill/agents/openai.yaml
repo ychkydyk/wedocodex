@@ -1,0 +1,4 @@
+interface:
+  display_name: "WEDOCODEX"
+  short_description: "Five Codex modes for cost, speed and quality"
+  default_prompt: "Use $wedocodex to select a working mode."
