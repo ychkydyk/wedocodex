@@ -1,0 +1,217 @@
+{
+  "version": "0.3.0-beta.1",
+  "timezone": "Europe/Moscow",
+  "rows": [
+    {
+      "task": "aggregate",
+      "condition": "A",
+      "requested_model": "gpt-6.1-sol",
+      "effort": "medium",
+      "config": {
+        "model": "gpt-6.1-sol",
+        "model_reasoning_effort": "medium",
+        "sandbox_mode": "workspace-write",
+        "approval_policy": "never",
+        "sandbox_workspace_write.network_access": false,
+        "tui.auto_recap": false,
+        "web_search": "disabled",
+        "notify": []
+      },
+      "task_sha256": "195fa90878aa3fa376b3a45d81cd1fcc55b55284463cf8c5e64a24fd2dd0ca70",
+      "usage": {
+        "input_tokens": 18208,
+        "cached_input_tokens": 9984,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 36,
+        "reasoning_output_tokens": 0
+      },
+      "correct": true,
+      "elapsed_seconds": 6.859,
+      "exit_code": 0,
+      "timeout": false,
+      "total_tokens": 18244,
+      "uncached_input_tokens": 8224
+    },
+    {
+      "task": "aggregate",
+      "condition": "B",
+      "requested_model": "gpt-6.1-sol",
+      "effort": "medium",
+      "config": {
+        "model": "gpt-6.1-sol",
+        "model_reasoning_effort": "medium",
+        "sandbox_mode": "workspace-write",
+        "approval_policy": "never",
+        "sandbox_workspace_write.network_access": false,
+        "tui.auto_recap": false,
+        "web_search": "disabled",
+        "notify": [],
+        "skills.max_context_tokens": 2000,
+        "tool_output_token_limit": 6000,
+        "model_verbosity": "low"
+      },
+      "task_sha256": "195fa90878aa3fa376b3a45d81cd1fcc55b55284463cf8c5e64a24fd2dd0ca70",
+      "usage": {
+        "input_tokens": 14006,
+        "cached_input_tokens": 9984,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 36,
+        "reasoning_output_tokens": 0
+      },
+      "correct": true,
+      "elapsed_seconds": 8.078,
+      "exit_code": 0,
+      "timeout": false,
+      "total_tokens": 14042,
+      "uncached_input_tokens": 4022
+    },
+    {
+      "task": "review",
+      "condition": "B",
+      "requested_model": "gpt-6.1-sol",
+      "effort": "medium",
+      "config": {
+        "model": "gpt-6.1-sol",
+        "model_reasoning_effort": "medium",
+        "sandbox_mode": "workspace-write",
+        "approval_policy": "never",
+        "sandbox_workspace_write.network_access": false,
+        "tui.auto_recap": false,
+        "web_search": "disabled",
+        "notify": [],
+        "skills.max_context_tokens": 2000,
+        "tool_output_token_limit": 6000,
+        "model_verbosity": "low"
+      },
+      "task_sha256": "62f5a1a8873edc0b61d2f18d3e09e4a93deafcc0a49e94c53860fa415ac393e5",
+      "usage": {
+        "input_tokens": 13901,
+        "cached_input_tokens": 9984,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 38,
+        "reasoning_output_tokens": 15
+      },
+      "correct": true,
+      "elapsed_seconds": 6.813,
+      "exit_code": 0,
+      "timeout": false,
+      "total_tokens": 13939,
+      "uncached_input_tokens": 3917
+    },
+    {
+      "task": "review",
+      "condition": "A",
+      "requested_model": "gpt-6.1-sol",
+      "effort": "medium",
+      "config": {
+        "model": "gpt-6.1-sol",
+        "model_reasoning_effort": "medium",
+        "sandbox_mode": "workspace-write",
+        "approval_policy": "never",
+        "sandbox_workspace_write.network_access": false,
+        "tui.auto_recap": false,
+        "web_search": "disabled",
+        "notify": []
+      },
+      "task_sha256": "62f5a1a8873edc0b61d2f18d3e09e4a93deafcc0a49e94c53860fa415ac393e5",
+      "usage": {
+        "input_tokens": 18103,
+        "cached_input_tokens": 9984,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 21,
+        "reasoning_output_tokens": 0
+      },
+      "correct": true,
+      "elapsed_seconds": 7.968,
+      "exit_code": 0,
+      "timeout": false,
+      "total_tokens": 18124,
+      "uncached_input_tokens": 8119
+    },
+    {
+      "task": "dependencies",
+      "condition": "A",
+      "requested_model": "gpt-6.1-sol",
+      "effort": "medium",
+      "config": {
+        "model": "gpt-6.1-sol",
+        "model_reasoning_effort": "medium",
+        "sandbox_mode": "workspace-write",
+        "approval_policy": "never",
+        "sandbox_workspace_write.network_access": false,
+        "tui.auto_recap": false,
+        "web_search": "disabled",
+        "notify": []
+      },
+      "task_sha256": "b827b9bfc8fe07e214c707faeb09d1a092ac041c28273d844ee5fa863dc6984c",
+      "usage": {
+        "input_tokens": 18088,
+        "cached_input_tokens": 9984,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 82,
+        "reasoning_output_tokens": 52
+      },
+      "correct": true,
+      "elapsed_seconds": 11.859,
+      "exit_code": 0,
+      "timeout": false,
+      "total_tokens": 18170,
+      "uncached_input_tokens": 8104
+    },
+    {
+      "task": "dependencies",
+      "condition": "B",
+      "requested_model": "gpt-6.1-sol",
+      "effort": "medium",
+      "config": {
+        "model": "gpt-6.1-sol",
+        "model_reasoning_effort": "medium",
+        "sandbox_mode": "workspace-write",
+        "approval_policy": "never",
+        "sandbox_workspace_write.network_access": false,
+        "tui.auto_recap": false,
+        "web_search": "disabled",
+        "notify": [],
+        "skills.max_context_tokens": 2000,
+        "tool_output_token_limit": 6000,
+        "model_verbosity": "low"
+      },
+      "task_sha256": "b827b9bfc8fe07e214c707faeb09d1a092ac041c28273d844ee5fa863dc6984c",
+      "usage": {
+        "input_tokens": 13886,
+        "cached_input_tokens": 9984,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 75,
+        "reasoning_output_tokens": 45
+      },
+      "correct": true,
+      "elapsed_seconds": 16.375,
+      "exit_code": 0,
+      "timeout": false,
+      "total_tokens": 13961,
+      "uncached_input_tokens": 3902
+    }
+  ],
+  "summary": {
+    "A": {
+      "n": 3,
+      "correct": 3,
+      "mean_total_tokens": 18179.333333333332,
+      "median_seconds": 7.968
+    },
+    "B": {
+      "n": 3,
+      "correct": 3,
+      "mean_total_tokens": 13980.666666666666,
+      "median_seconds": 8.078
+    }
+  },
+  "stopped": null,
+  "preserve_agent_catalog": true,
+  "scope": "native settings + launcher behavior on 3 small paired tasks; no tool-output truncation workload",
+  "model": "gpt-6.1-sol",
+  "effort": "medium",
+  "token_reduction_percent": 23.0958230958231,
+  "interpretation": "Selected cache-preserving variant. Same requested model/effort, three paired tasks. Token counts, not account quota or cost claims.",
+  "upstream_commit": "88cee4945062501c7012d3fc3adf4f68d5f9c3b7"
+}

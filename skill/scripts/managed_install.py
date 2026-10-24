@@ -9,7 +9,7 @@ import uuid
 
 STATE = 'wedocodex-install.json'
 ALLOWED = {'profile:' + name for name in ('token-saver','fast-flow','max-quality','guarded','autopilot')} | {
-    'skill:SKILL.md','skill:LICENSE','skill:agents/openai.yaml','skill:scripts/wedocodex.py','skill:scripts/managed_install.py'}
+    'skill:SKILL.md','skill:LICENSE','skill:agents/openai.yaml','skill:references/ultra-config-map.md','skill:scripts/wedocodex.py','skill:scripts/managed_install.py','skill:scripts/runtime_profiles.py'}
 
 def digest(data): return hashlib.sha256(data).hexdigest()
 def stamp(): return datetime.now(timezone(timedelta(hours=3))).strftime('%Y-%m-%d_%H-%M-%S-%f')

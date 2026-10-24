@@ -1,0 +1,46 @@
+{
+  "scope": "API verified on separate completed test thread; current desktop proxy unavailable",
+  "checks": [
+    {
+      "mode": "token-saver",
+      "preview_no_change": true,
+      "model_effort_verified": true,
+      "undo_verified": true,
+      "permission_fields_skipped": []
+    },
+    {
+      "mode": "fast-flow",
+      "preview_no_change": true,
+      "model_effort_verified": true,
+      "undo_verified": true,
+      "permission_fields_skipped": [
+        "approval_policy",
+        "sandbox_mode"
+      ]
+    },
+    {
+      "mode": "max-quality",
+      "preview_no_change": true,
+      "model_effort_verified": true,
+      "undo_verified": true,
+      "permission_fields_skipped": []
+    },
+    {
+      "mode": "guarded",
+      "preview_no_change": true,
+      "model_effort_verified": true,
+      "undo_verified": true,
+      "permission_fields_skipped": [
+        "approval_policy",
+        "sandbox_mode"
+      ]
+    },
+    {
+      "mode": "autopilot",
+      "preview_no_change": true,
+      "model_effort_verified": true,
+      "undo_verified": true,
+      "permission_fields_skipped": []
+    }
+  ]
+}

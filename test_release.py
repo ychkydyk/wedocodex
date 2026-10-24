@@ -96,7 +96,7 @@ class ReleaseTests(unittest.TestCase):
 
     def test_install_excludes_unlisted_payload(self):
         files = w.install_files(self.home)
-        self.assertEqual(len(files), 10)
+        self.assertEqual(len(files), 12)
         self.assertFalse(any('reports' in str(path) or '__pycache__' in str(path) for path in files))
 
     def test_noninteractive_menu_returns_actionable_error(self):

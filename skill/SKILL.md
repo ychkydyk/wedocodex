@@ -1,34 +1,34 @@
 ---
 name: wedocodex
-description: Select WEDOCODEX working modes when asked to configure Codex for token savings, fast flow, max quality, guarded review, or autopilot. Separate working style from real model and permission settings. Reviewing this skill or asking about a mode does not activate it.
+description: "Configure WEDOCODEX modes in Codex: Token Saver, Fast Flow, Max Quality, Guarded and Autopilot. Use for explicit mode/configuration requests; discussing or reviewing a mode does not activate it."
+license: MIT
 ---
 
 # WEDOCODEX
 
-Resolve `scripts/wedocodex.py` relative to this SKILL.md; it travels with the skill. Use Python 3.11+. Run `python <skill-dir>/scripts/wedocodex.py list` only if current preset values are needed. Do not scan local history or the full model cache merely to select a behavior.
+Resolve `scripts/wedocodex.py` relative to this file. Python 3.11+; runtime verified with Codex 0.162.0-alpha.17.2. Do not read the implementation or every reference merely to select a mode.
 
-For a mode activation request with no mode, show the five choices below and ask which one to use. For an explicit named activation, adopt that behavior in this chat and carry on with the user's task. Reviewing, testing or explaining the skill is not activation. A later explicit mode replaces the previous behavior, not the user's task or approvals. Do not start a second session unless asked to launch or resume CLI. Never infer runtime changes from a text instruction.
+| Mode | Default runtime | Working behavior |
+|---|---|---|
+| token-saver / saver | Luna / low; catalog 2000, output history 6000 | Concise, targeted reads; deterministic routines; no automatic agents |
+| fast-flow / flow | Sol 6.1 / medium; workspace-write, never escalation | Finish authorized work with few interruptions; denied actions stay denied |
+| max-quality / quality | Astra / max; catalog 10000 | Verify consequential assumptions; no automatic delegation |
+| guarded | Sol 6.1 / medium; read-only | Audit only, including external tools; propose changes without applying |
+| autopilot | Sol 6.1 / medium; recap and terminal notifications | Continue the authorized task; brief timestamped checkpoints at milestones |
 
-| Mode | Intended runtime | Behavior |
-| --- | --- | --- |
-| token-saver | GPT-6 Luna / low | Concise answers, scoped searches, deterministic scripts, no automatic subagents. Escalate only when task difficulty warrants it. |
-| fast-flow | GPT-6.1 Sol / medium, workspace-write, never approvals | Finish authorized work. A denied operation stays denied; no sandbox bypass. |
-| max-quality | GPT-6 Astra / max | Verify consequential assumptions and relevant behavior thoroughly. No automatic delegation. |
-| guarded | GPT-6.1 Sol / medium, read-only, never approvals | Read-only audit including external tools. Do not read secrets. Propose changes without executing. |
-| autopilot | GPT-6.1 Sol / medium | Persist timestamped checkpoints at meaningful milestones, continue authorized work, respect budgets and stop conditions. |
+For bare activation show these choices. For a named activation adopt its behavior and continue the user's task. State that behavior changed; never claim a model/effort/permission switch from text alone. Later activation replaces the mode, not the task or approvals.
 
-In a running chat, model/effort changes require the client's actual controls: CLI `/model`, `/permissions`, then `/status`; in other clients use the available model and permission controls. Acknowledge behavior in one sentence and distinguish intended from verified runtime settings. If runtime state is unavailable, say so rather than reading config.toml as proof. Complete preset application uses the launcher for a new CLI session, or `run MODE --resume SESSION_ID` after the previous writer stops. Never guess a session ID or use the latest session implicitly. Invoke this skill as `$wedocodex MODE`; it does not register `/wedocodex`.
-
-Launcher examples:
+Use the launcher only when the user requests runtime configuration or a CLI launch:
 ```
-python <skill-dir>/scripts/wedocodex.py show token-saver
-python <skill-dir>/scripts/wedocodex.py run token-saver --workspace <project>
+python <skill-dir>/scripts/wedocodex.py preview saver --workspace <project>
+python <skill-dir>/scripts/wedocodex.py run saver --workspace <project>
 ```
+No second session without a launch/resume request. Explicit `--model` and `--effort` overrides are supported; never silently substitute a model. Catalog presence is not account entitlement.
 
-Runtime profiles are installed additively as `$CODEX_HOME/wedocodex-MODE.config.toml` (default `~/.codex`). The launcher applies equivalent CLI overrides and adds the behavior prompt. Managed restrictions remain authoritative. Direct `codex --profile wedocodex-MODE` selects runtime settings only. Models are presets, not entitlement guarantees; the launcher allows explicit `--model MODEL --effort LEVEL` and never silently substitutes a different model. Do not enable ultra or subagents as a side effect of a profile.
+For an existing idle session, prefer native `/model`, `/permissions`, `/status`. Where a local Codex App Server proxy is available, `live-preview MODE --thread UUID`, `live-apply MODE --thread UUID`, and `live-undo --thread UUID` provide readback and conflict-aware undo. Use the exact user-selected/current verified UUID and matching workspace, never guess or choose the latest session. Report blocked and restart-required fields. A partial live update is not full profile activation; Guarded is not effective unless actual permissions confirm it.
 
-Sandbox read-only protects shell filesystem writes; it does not isolate all secrets or prevent connector mutations. Guarded's connector constraint is behavioral. Autopilot terminal notifications depend on the terminal; they are not mobile push. No external notification service is configured. Compaction saves context, not subscription quota. Never claim a measured saving without before/after evidence. For unrelated tasks use a fresh chat; for the same long task preserve a checkpoint before `/compact`.
+Limits apply at startup. A smaller discovery catalog may omit skills from initial suggestions; explicit skills remain available. Guarded is not secret isolation, and shell restrictions do not technically block every connector mutation. Terminal notifications are not mobile push. Do not disable unrelated plugins, rewrite AGENTS.md, create schedules, or launch external agents as a mode side effect.
 
-Workspace instructions still govern delegation, compute, artifact names, quotas and external agents. A mode grants no additional spending, messaging, scheduling or deployment authorization. Do not rewrite those instructions for token savings. Autopilot checkpoints should be brief, preserve objective/paths/verification/next step, and use a fresh timestamped filename under the workspace's existing checkpoint convention; do not write a checkpoint on every tool call.
+For installation management use `install`, `update`, `uninstall`, `recover`; preview changes with `--dry-run`. Update from the new unpacked package. User edits block replacement/removal; history stays in CODEX_HOME. Do not remove a stale lock before verifying its installer has stopped.
 
-For an explicit installation-management request, use `install`, `update`, `uninstall` or `recover` from the bundled launcher. Preview update/uninstall with `--dry-run`. Update from the new unpacked package, not an old installed script. Owned files are tracked in `$CODEX_HOME/wedocodex-install.json`; conflicts preserve user edits. Backups and interrupted-transaction journals stay under `$CODEX_HOME/wedocodex-history`. Uninstall leaves unknown files and history in place. Never delete a lock blindly after an abrupt process exit; verify that its installer is no longer running first.
+For exact upstream parity and unsupported settings, read [the mapping](references/ultra-config-map.md). For savings claims use per-request input, cached-input, output and reasoning metrics plus correctness. Total context reduction is not automatically a billing or speed guarantee.

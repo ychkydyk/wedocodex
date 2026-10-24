@@ -13,15 +13,16 @@ from skill.scripts import wedocodex as w
 from verify_runtime import run_suite
 
 ROOT = Path(__file__).resolve().parent
-FILES = ['bench_ab.py', 'assets/2026-10-24_22-32-29-wedocodex-ab-no-savings.png', 'docs/2026-10-24_22-32-29-same-model-ab-results.json', 'assets/2026-10-24_22-23-40-wedocodex-pilot-measured.png', 'docs/2026-10-24_22-23-40-pilot-results.json', 'assets/2026-10-24_22-15-51-wedocodex-projector-without-skill.png', 'README.md', 'LICENSE', '.gitignore', 'wedocodex.py', 'wedocodex.cmd',
-         'test_wedocodex.py', 'test_release.py', 'test_lifecycle.py', 'verify_runtime.py', 'build_release.py',
-         'migrate_legacy.py', 'bench_live.py', 'probe_quota.py',
-         'skill/SKILL.md', 'skill/LICENSE', 'skill/agents/openai.yaml', 'skill/scripts/wedocodex.py', 'skill/scripts/managed_install.py']
+FILES = ['README.md', 'LICENSE', '.gitignore', 'wedocodex.py', 'wedocodex.cmd',
+         'test_wedocodex.py', 'test_release.py', 'test_lifecycle.py', 'test_runtime_profiles.py', 'verify_runtime.py', 'verify_live_profiles.py', 'build_release.py',
+         'migrate_legacy.py', 'bench_live.py', 'bench_ab.py', 'bench_mechanics.py', 'bench_warm.py', 'probe_context.py', 'probe_quota.py',
+         'skill/SKILL.md', 'skill/LICENSE', 'skill/agents/openai.yaml', 'skill/references/ultra-config-map.md',
+         'skill/scripts/wedocodex.py', 'skill/scripts/managed_install.py', 'skill/scripts/runtime_profiles.py']
 
 def main():
     stamp = datetime.now(timezone(timedelta(hours=3))).strftime('%Y-%m-%d_%H-%M-%S-%f')
     report_dir = ROOT / 'reports'; report_dir.mkdir(exist_ok=True)
-    test = subprocess.run([sys.executable, '-m', 'unittest', '-v', 'test_wedocodex', 'test_release', 'test_lifecycle'],
+    test = subprocess.run([sys.executable, '-m', 'unittest', '-v', 'test_wedocodex', 'test_release', 'test_lifecycle', 'test_runtime_profiles'],
                           cwd=ROOT, capture_output=True, text=True)
     with (report_dir / (stamp + '-second-test.log')).open('x', encoding='utf-8') as f:
         f.write(test.stdout + test.stderr)
@@ -34,7 +35,7 @@ def main():
 Date: {datetime.now(timezone(timedelta(hours=3))).isoformat()}. Time zone: Europe/Moscow.
 Platform: Windows. CLI: {cli_version}. Python: {sys.version.split()[0]}.
 
-26 regression tests passed. 7 local App Server config checks passed.
+34 regression tests passed. 7 local App Server config checks passed.
 
 Verified: self-contained installed skill; conflict preflight; rollback on a simulated late write failure; literal Unicode/quoted arguments in a real child process; refusal of batch shims and option-shaped session IDs; invalid catalog handling; explicit model overrides; noninteractive menu errors; all five effective presets; launcher overrides beat a loaded trusted-project conflict; malformed TOML is rejected.
 
@@ -42,7 +43,9 @@ Manual skill review: bare invocation offers choices; explicit activation changes
 
 Fixed since v1: absolute workstation paths and missing launcher in installed skill; incomplete argument validation; nonportable Windows argument forwarding; partial install on write failure; misleading catalog/access wording; profile discussion could unintentionally activate behavior.
 
-This build command performs no inference. Later fixed-model A/B (3 runs per condition) found 18239 mean total tokens without mode instructions versus 18303 with Token Saver behavior: +0.35%, no demonstrated saving. Median times 7.453/7.344 seconds do not establish a reliable speedup. See the same-model A/B results in docs. A separate two-request smoke test produced correct answers: requested Luna/low used 15865 input + 36 output tokens in 7.1 seconds; requested Sol/medium used 18252 input + 62 output tokens in 8.4 seconds. Reasoning tokens 0/24 are subsets of output. One trial per profile; model/system context differs; not a general savings benchmark. The independent served model ID was not exposed in CLI events. The completion notify hook ran twice; visible terminal notification delivery is unverified. Account quota figures are omitted from the public report.
+This build command performs no inference. Version 0.3 uses real catalog/output limits. A fixed-model paired test across 3 short tasks yielded mean total tokens 18179.33 -> 13980.67 and uncached input 8149 -> 3947; cached input was 9984 in both conditions. All six answers were correct. Median elapsed time 7.968 -> 8.078 seconds does not establish a speed gain. This is a bounded workload result, not an account-quota or billing guarantee. The independent served model ID was not exposed; requested model/effort was Sol 6.1 / medium.
+
+Preview/apply/undo of model and effort was verified for all five modes through the native API on a separate completed thread, without inference. Named permission profiles were preserved and skipped fields were reported. A proxy to the current desktop session was unavailable, so attachment to that client is not claimed. Startup catalog/output budgets still need a new launch.
 
 Update/uninstall/recover use owned-file hashes, verified timestamped backups and per-file atomic writes. User edits block changes. Interrupted transactions are recoverable; stale locks after hard process termination require checking that the installer has stopped. Two additional tests cover exact-baseline migration and refusal of a modified legacy installation.
 
@@ -51,7 +54,8 @@ macOS/Linux remain untested by owner decision. OS sandbox enforcement and resume
     qa_name = stamp + '-second-test.md'
     with (report_dir / qa_name).open('x', encoding='utf-8') as f:
         f.write(qa)
-    payload = {relative: (ROOT / relative).read_bytes() for relative in FILES}
+    evidence=[p.relative_to(ROOT).as_posix() for p in (ROOT/'evidence').glob('*.json')]
+    payload = {relative: (ROOT / relative).read_bytes() for relative in [*FILES,*evidence]}
     assert payload['LICENSE'] == payload['skill/LICENSE'], 'Installed skill must carry the same MIT license'
     payload[qa_name] = qa.encode('utf-8')
     # Check UTF-8 docs and reject damaged text before packaging.
@@ -78,7 +82,7 @@ macOS/Linux remain untested by owner decision. OS sandbox enforcement and resume
             assert hashlib.sha256(z.read('wedocodex/' + name)).digest() == hashlib.sha256(data).digest()
         extracted = ROOT / 'qa' / (stamp + '-extracted-package')
         z.extractall(extracted)
-    smoke = subprocess.run([sys.executable, '-m', 'unittest', 'test_wedocodex', 'test_release', 'test_lifecycle'],
+    smoke = subprocess.run([sys.executable, '-m', 'unittest', 'test_wedocodex', 'test_release', 'test_lifecycle', 'test_runtime_profiles'],
                            cwd=extracted / 'wedocodex', capture_output=True, text=True)
     if smoke.returncode:
         raise RuntimeError('Extracted package failed: ' + smoke.stderr)
@@ -86,8 +90,8 @@ macOS/Linux remain untested by owner decision. OS sandbox enforcement and resume
     with archive.with_suffix('.sha256').open('x', encoding='utf-8') as f:
         f.write(digest + '  ' + archive.name + '\n')
     print(json.dumps({'archive': str(archive), 'sha256': digest, 'qa_report': str(report_dir / qa_name),
-                      'unit_tests': 26, 'runtime_checks': len(runtime['results']),
-                      'extracted_package_tests': 26}, indent=2))
+                      'unit_tests': 34, 'runtime_checks': len(runtime['results']),
+                      'extracted_package_tests': 34}, indent=2))
 
 if __name__ == '__main__':
     main()

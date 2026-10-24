@@ -12,11 +12,13 @@ import tomllib
 import re
 try:
     from . import managed_install as lifecycle
+    from . import runtime_profiles as runtime
 except ImportError:
     import managed_install as lifecycle
+    import runtime_profiles as runtime
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = '0.2.0-beta.3'
+VERSION = '0.3.0-beta.1'
 MSK = timezone(timedelta(hours=3), 'Europe/Moscow')
 PROFILES = {
     'token-saver': ('gpt-6-luna', 'low', 'workspace-write', 'on-request'),
@@ -48,6 +50,18 @@ def settings(name, model=None, effort=None):
                   sandbox_mode=sandbox, approval_policy=approval)
     result['sandbox_workspace_write.network_access'] = False
     result['tui.auto_recap'] = name == 'autopilot'
+    # Native runtime controls, not a request to the model to be economical.
+    result['skills.max_context_tokens'] = {
+        'token-saver': 2000, 'fast-flow': 4000, 'max-quality': 10000,
+        'guarded': 6000, 'autopilot': 4000}[name]
+    result['tool_output_token_limit'] = {
+        'token-saver': 6000, 'fast-flow': 8000, 'max-quality': 16000,
+        'guarded': 8000, 'autopilot': 8000}[name]
+    # Keep the stable tool prefix for caching. Delegation remains governed by
+    # workspace instructions; do not force-enable tools disabled by the owner.
+    if name == 'guarded':result['agents.enabled'] = False
+    if model in {entry[0] for entry in PROFILES.values()}:
+        result['model_verbosity'] = 'medium' if name == 'max-quality' else 'low'
     if name == 'autopilot':
         result['tui.notifications'] = True
         result['tui.notification_method'] = 'auto'
@@ -67,7 +81,7 @@ def install_files(home, skills_dir=None):
     skills_dir = Path(skills_dir).resolve() if skills_dir else home / 'skills'
     result = {home / f'wedocodex-{name}.config.toml': profile_bytes(name) for name in PROFILES}
     # Explicit allowlist: never ship logs, caches, credentials or local reports.
-    for relative in ('SKILL.md', 'LICENSE', 'agents/openai.yaml', 'scripts/wedocodex.py', 'scripts/managed_install.py'):
+    for relative in ('SKILL.md', 'LICENSE', 'agents/openai.yaml', 'references/ultra-config-map.md', 'scripts/wedocodex.py', 'scripts/managed_install.py', 'scripts/runtime_profiles.py'):
         source = ROOT / relative
         result[skills_dir / 'wedocodex' / relative] = source.read_bytes()
     return result
@@ -134,26 +148,46 @@ def resolve_executable():
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--version', action='version', version=VERSION)
-    parser.add_argument('action', choices=['menu', 'list', 'show', 'run', 'install', 'update', 'uninstall', 'recover'], nargs='?', default='menu')
-    parser.add_argument('mode', choices=PROFILES, nargs='?')
+    parser.add_argument('action', choices=['menu', 'list', 'show', 'run', 'preview', 'live-preview', 'live-apply', 'live-undo', 'install', 'update', 'uninstall', 'recover'], nargs='?', default='menu')
+    aliases={'saver':'token-saver','flow':'fast-flow','quality':'max-quality'}
+    parser.add_argument('mode', choices=[*PROFILES,*aliases], nargs='?')
     parser.add_argument('--workspace', default=os.getcwd())
     parser.add_argument('--resume', help='Explicit session ID/name; stop its previous writer first')
     parser.add_argument('--prompt')
-    parser.add_argument('--home', type=Path, help='Installation destination only')
+    parser.add_argument('--home', type=Path, help='Codex home for install or runtime control')
+    parser.add_argument('--thread', help='Explicit existing thread UUID for live profile control')
     parser.add_argument('--skills-dir', type=Path, help='Install skill under this directory')
     parser.add_argument('--dry-run', action='store_true', help='Preview install/update/uninstall without changing installed files')
     parser.add_argument('--model', help='Explicit model override, checked against the local catalog')
     parser.add_argument('--effort', choices=['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'])
     options = parser.parse_args()
+    options.mode=aliases.get(options.mode,options.mode)
     maintenance = options.action in ('install', 'update', 'uninstall', 'recover')
-    if not maintenance and (options.home or options.skills_dir or options.dry_run):
+    control=options.action in ('preview','live-preview','live-apply','live-undo')
+    if not maintenance and not control and (options.home or options.skills_dir or options.dry_run):
         parser.error('--home, --skills-dir and --dry-run apply only to installation management')
+    if control and options.skills_dir:parser.error('--skills-dir is installation-only')
+    if options.thread and not options.action.startswith('live-'):parser.error('--thread applies only to live control')
     if maintenance and options.mode:
         parser.error('Installation management does not take a working mode')
     if options.action == 'recover' and options.dry_run:
         parser.error('recover has no dry-run; recovery checks for external edits before restoring')
-    if options.action not in ('menu', 'run', 'show') and any((options.resume, options.prompt, options.model, options.effort)):
+    if options.action not in ('menu', 'run', 'show','preview','live-preview','live-apply') and any((options.resume, options.prompt, options.model, options.effort)):
         parser.error('resume/prompt/model/effort apply only to menu, run or show')
+    if control:
+        if options.resume or options.prompt:parser.error('Control actions do not submit a model prompt or select the last session')
+        if options.action!='live-undo' and not options.mode:parser.error('Select a mode')
+        if options.action.startswith('live-') and not options.thread:parser.error('Explicit --thread UUID required')
+        home=(options.home or codex_home()).resolve();workspace=Path(options.workspace).resolve()
+        wanted=settings(options.mode,options.model,options.effort) if options.mode else None
+        with runtime.Rpc(resolve_executable(),home,workspace,proxy=options.action.startswith('live-')) as rpc:
+            if options.action=='preview':result={'scope':'configuration, not proof of an active chat', 'rows':runtime.preview_config(rpc,wanted,workspace)}
+            elif options.action=='live-undo':result=runtime.live_undo(rpc,home,options.thread,workspace)
+            else:
+                check_catalog(home,options.mode,options.model,options.effort)
+                result=runtime.live_apply(rpc,home,options.thread,workspace,options.mode,wanted,
+                                         dry_run=options.action=='live-preview' or options.dry_run)
+        print(json.dumps(result,ensure_ascii=False,indent=2));return
     if maintenance:
         home = (options.home or codex_home()).resolve()
         destination = options.skills_dir
@@ -182,6 +216,13 @@ def main():
         if choice not in [str(i) for i in range(1, 6)]:
             raise RuntimeError('Invalid selection; nothing launched.')
         options.mode = names[int(choice) - 1]
+        workspace=Path(options.workspace).resolve()
+        with runtime.Rpc(resolve_executable(),codex_home(),workspace) as rpc:
+            rows=runtime.preview_config(rpc,settings(options.mode,options.model,options.effort),workspace)
+        print('Configured values -> requested values (not the current chat state):')
+        for row in rows:
+            print(f"  {row['status']:6} {row['key']}: {row['from']} -> {row['to']}")
+        if input('Enter to launch; any other input cancels: ').strip():return
     if not options.mode:
         parser.error('mode is required for show/run')
     args = command(options.mode, options.workspace, options.resume, options.prompt,
