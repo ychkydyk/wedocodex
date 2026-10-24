@@ -1,6 +1,6 @@
 # WEDOCODEX 0.2.0-beta.3
 
-![WEDOCODEX: projector mascot observes two coding agents](assets/2026-10-24_22-15-51-wedocodex-projector-without-skill.png)
+![WEDOCODEX: projector mascot observes two coding agents](assets/2026-10-24_22-23-40-wedocodex-pilot-measured.png)
 
 Пять режимов Codex: экономия, быстрые правки, качество, чтение и длительные задачи. Независимый экспериментальный проект, не официальный продукт OpenAI.
 

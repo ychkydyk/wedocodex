@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-24",
+  "task": "identical paid-row aggregation task",
+  "trials_per_profile": 1,
+  "served_model_identity": "not independently exposed in CLI events",
+  "different_models_and_system_contexts": true,
+  "cases": [
+    {
+      "profile": "token-saver",
+      "requested_model": "gpt-6-luna",
+      "effort": "low",
+      "input_tokens": 15865,
+      "output_tokens": 36,
+      "reasoning_output_tokens": 0,
+      "seconds": 7.078,
+      "correct": true
+    },
+    {
+      "profile": "fast-flow",
+      "requested_model": "gpt-6.1-sol",
+      "effort": "medium",
+      "input_tokens": 18252,
+      "output_tokens": 62,
+      "reasoning_output_tokens": 24,
+      "seconds": 8.391,
+      "correct": true
+    }
+  ],
+  "total_token_reduction_percent": 13.1757,
+  "limitation": "One pilot comparison of two profiles, not a skill/no-skill A/B experiment or universal guarantee."
+}

@@ -13,7 +13,7 @@ from skill.scripts import wedocodex as w
 from verify_runtime import run_suite
 
 ROOT = Path(__file__).resolve().parent
-FILES = ['assets/2026-10-24_22-15-51-wedocodex-projector-without-skill.png', 'README.md', 'LICENSE', '.gitignore', 'wedocodex.py', 'wedocodex.cmd',
+FILES = ['assets/2026-10-24_22-23-40-wedocodex-pilot-measured.png', 'docs/2026-10-24_22-23-40-pilot-results.json', 'assets/2026-10-24_22-15-51-wedocodex-projector-without-skill.png', 'README.md', 'LICENSE', '.gitignore', 'wedocodex.py', 'wedocodex.cmd',
          'test_wedocodex.py', 'test_release.py', 'test_lifecycle.py', 'verify_runtime.py', 'build_release.py',
          'migrate_legacy.py', 'bench_live.py', 'probe_quota.py',
          'skill/SKILL.md', 'skill/LICENSE', 'skill/agents/openai.yaml', 'skill/scripts/wedocodex.py', 'skill/scripts/managed_install.py']
