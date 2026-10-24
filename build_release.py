@@ -13,7 +13,7 @@ from skill.scripts import wedocodex as w
 from verify_runtime import run_suite
 
 ROOT = Path(__file__).resolve().parent
-FILES = ['assets/2026-10-24_22-23-40-wedocodex-pilot-measured.png', 'docs/2026-10-24_22-23-40-pilot-results.json', 'assets/2026-10-24_22-15-51-wedocodex-projector-without-skill.png', 'README.md', 'LICENSE', '.gitignore', 'wedocodex.py', 'wedocodex.cmd',
+FILES = ['bench_ab.py', 'assets/2026-10-24_22-32-29-wedocodex-ab-no-savings.png', 'docs/2026-10-24_22-32-29-same-model-ab-results.json', 'assets/2026-10-24_22-23-40-wedocodex-pilot-measured.png', 'docs/2026-10-24_22-23-40-pilot-results.json', 'assets/2026-10-24_22-15-51-wedocodex-projector-without-skill.png', 'README.md', 'LICENSE', '.gitignore', 'wedocodex.py', 'wedocodex.cmd',
          'test_wedocodex.py', 'test_release.py', 'test_lifecycle.py', 'verify_runtime.py', 'build_release.py',
          'migrate_legacy.py', 'bench_live.py', 'probe_quota.py',
          'skill/SKILL.md', 'skill/LICENSE', 'skill/agents/openai.yaml', 'skill/scripts/wedocodex.py', 'skill/scripts/managed_install.py']
@@ -42,7 +42,7 @@ Manual skill review: bare invocation offers choices; explicit activation changes
 
 Fixed since v1: absolute workstation paths and missing launcher in installed skill; incomplete argument validation; nonportable Windows argument forwarding; partial install on write failure; misleading catalog/access wording; profile discussion could unintentionally activate behavior.
 
-This build command performs no inference. A separate two-request smoke test produced correct answers: requested Luna/low used 15865 input + 36 output tokens in 7.1 seconds; requested Sol/medium used 18252 input + 62 output tokens in 8.4 seconds. Reasoning tokens 0/24 are subsets of output. One trial per profile; model/system context differs; not a general savings benchmark. The independent served model ID was not exposed in CLI events. The completion notify hook ran twice; visible terminal notification delivery is unverified. Account quota figures are omitted from the public report.
+This build command performs no inference. Later fixed-model A/B (3 runs per condition) found 18239 mean total tokens without mode instructions versus 18303 with Token Saver behavior: +0.35%, no demonstrated saving. Median times 7.453/7.344 seconds do not establish a reliable speedup. See the same-model A/B results in docs. A separate two-request smoke test produced correct answers: requested Luna/low used 15865 input + 36 output tokens in 7.1 seconds; requested Sol/medium used 18252 input + 62 output tokens in 8.4 seconds. Reasoning tokens 0/24 are subsets of output. One trial per profile; model/system context differs; not a general savings benchmark. The independent served model ID was not exposed in CLI events. The completion notify hook ran twice; visible terminal notification delivery is unverified. Account quota figures are omitted from the public report.
 
 Update/uninstall/recover use owned-file hashes, verified timestamped backups and per-file atomic writes. User edits block changes. Interrupted transactions are recoverable; stale locks after hard process termination require checking that the installer has stopped. Two additional tests cover exact-baseline migration and refusal of a modified legacy installation.
 

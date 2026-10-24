@@ -1,0 +1,178 @@
+{
+  "created_at": "2026-10-24T22:29:08.743217+03:00",
+  "timezone": "Europe/Moscow",
+  "plan": {
+    "model": "gpt-6.1-sol",
+    "effort": "medium",
+    "order": [
+      "A",
+      "B",
+      "B",
+      "A",
+      "A",
+      "B"
+    ],
+    "task_sha256": "195fa90878aa3fa376b3a45d81cd1fcc55b55284463cf8c5e64a24fd2dd0ca70",
+    "A": "same Codex runtime, task only, no WEDOCODEX mode instruction",
+    "B": "same runtime, Token Saver launcher behavior plus identical task",
+    "scope": "behavior prompt effect on one short data task; not a general skill benchmark"
+  },
+  "results": [
+    {
+      "index": 1,
+      "condition": "A",
+      "elapsed_seconds": 7.453,
+      "requested_model": "gpt-6.1-sol",
+      "requested_effort": "medium",
+      "runtime_sha256": "a5c0d20638097a709809fefa25a9b5177237ded4caa36ada34f2cf6b5d4beae7",
+      "prompt_sha256": "195fa90878aa3fa376b3a45d81cd1fcc55b55284463cf8c5e64a24fd2dd0ca70",
+      "usage": {
+        "input_tokens": 18194,
+        "cached_input_tokens": 9984,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 63,
+        "reasoning_output_tokens": 25
+      },
+      "correct": true,
+      "exit_code": 0,
+      "timeout": false,
+      "tool_events": [],
+      "total_tokens": 18257
+    },
+    {
+      "index": 2,
+      "condition": "B",
+      "elapsed_seconds": 6.391,
+      "requested_model": "gpt-6.1-sol",
+      "requested_effort": "medium",
+      "runtime_sha256": "a5c0d20638097a709809fefa25a9b5177237ded4caa36ada34f2cf6b5d4beae7",
+      "prompt_sha256": "227d3accf1591e9e60d277e3db639b6841a9e0ad73f19839138a94a328e3a688",
+      "usage": {
+        "input_tokens": 18267,
+        "cached_input_tokens": 9984,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 36,
+        "reasoning_output_tokens": 0
+      },
+      "correct": true,
+      "exit_code": 0,
+      "timeout": false,
+      "tool_events": [],
+      "total_tokens": 18303
+    },
+    {
+      "index": 3,
+      "condition": "B",
+      "elapsed_seconds": 9.594,
+      "requested_model": "gpt-6.1-sol",
+      "requested_effort": "medium",
+      "runtime_sha256": "a5c0d20638097a709809fefa25a9b5177237ded4caa36ada34f2cf6b5d4beae7",
+      "prompt_sha256": "227d3accf1591e9e60d277e3db639b6841a9e0ad73f19839138a94a328e3a688",
+      "usage": {
+        "input_tokens": 18267,
+        "cached_input_tokens": 9984,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 36,
+        "reasoning_output_tokens": 0
+      },
+      "correct": true,
+      "exit_code": 0,
+      "timeout": false,
+      "tool_events": [],
+      "total_tokens": 18303
+    },
+    {
+      "index": 4,
+      "condition": "A",
+      "elapsed_seconds": 6.75,
+      "requested_model": "gpt-6.1-sol",
+      "requested_effort": "medium",
+      "runtime_sha256": "a5c0d20638097a709809fefa25a9b5177237ded4caa36ada34f2cf6b5d4beae7",
+      "prompt_sha256": "195fa90878aa3fa376b3a45d81cd1fcc55b55284463cf8c5e64a24fd2dd0ca70",
+      "usage": {
+        "input_tokens": 18194,
+        "cached_input_tokens": 9984,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 36,
+        "reasoning_output_tokens": 0
+      },
+      "correct": true,
+      "exit_code": 0,
+      "timeout": false,
+      "tool_events": [],
+      "total_tokens": 18230
+    },
+    {
+      "index": 5,
+      "condition": "A",
+      "elapsed_seconds": 8.047,
+      "requested_model": "gpt-6.1-sol",
+      "requested_effort": "medium",
+      "runtime_sha256": "a5c0d20638097a709809fefa25a9b5177237ded4caa36ada34f2cf6b5d4beae7",
+      "prompt_sha256": "195fa90878aa3fa376b3a45d81cd1fcc55b55284463cf8c5e64a24fd2dd0ca70",
+      "usage": {
+        "input_tokens": 18194,
+        "cached_input_tokens": 9984,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 36,
+        "reasoning_output_tokens": 0
+      },
+      "correct": true,
+      "exit_code": 0,
+      "timeout": false,
+      "tool_events": [],
+      "total_tokens": 18230
+    },
+    {
+      "index": 6,
+      "condition": "B",
+      "elapsed_seconds": 7.344,
+      "requested_model": "gpt-6.1-sol",
+      "requested_effort": "medium",
+      "runtime_sha256": "a5c0d20638097a709809fefa25a9b5177237ded4caa36ada34f2cf6b5d4beae7",
+      "prompt_sha256": "227d3accf1591e9e60d277e3db639b6841a9e0ad73f19839138a94a328e3a688",
+      "usage": {
+        "input_tokens": 18267,
+        "cached_input_tokens": 9984,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 36,
+        "reasoning_output_tokens": 0
+      },
+      "correct": true,
+      "exit_code": 0,
+      "timeout": false,
+      "tool_events": [],
+      "total_tokens": 18303
+    }
+  ],
+  "summary": {
+    "A": {
+      "n": 3,
+      "correct": 3,
+      "mean_total_tokens": 18239,
+      "median_seconds": 7.453,
+      "mean_input_tokens": 18194,
+      "mean_cached_input_tokens": 9984,
+      "mean_output_tokens": 45
+    },
+    "B": {
+      "n": 3,
+      "correct": 3,
+      "mean_total_tokens": 18303,
+      "median_seconds": 7.344,
+      "mean_input_tokens": 18267,
+      "mean_cached_input_tokens": 9984,
+      "mean_output_tokens": 36
+    }
+  },
+  "stop_reason": null,
+  "runtime_identical": true,
+  "limitations": [
+    "one short deterministic data task",
+    "three samples maximum per condition",
+    "cold/warm cache and startup/network variance remain",
+    "requested model ID, independent served ID unavailable"
+  ],
+  "total_token_reduction_percent": -0.350896430725367,
+  "median_time_reduction_percent": 1.4624983228230248
+}
