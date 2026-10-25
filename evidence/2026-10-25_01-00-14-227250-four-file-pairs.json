@@ -1,0 +1,192 @@
+{
+  "release": "0.3.0-beta.2",
+  "timezone": "Europe/Moscow",
+  "requested_model": "gpt-6.1-sol",
+  "effort": "medium",
+  "tasks": 4,
+  "runs": 8,
+  "all_correct": true,
+  "rows": [
+    {
+      "condition": "A",
+      "usage": {
+        "input_tokens": 51988,
+        "cached_input_tokens": 36736,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 289,
+        "reasoning_output_tokens": 0
+      },
+      "total_tokens": 52277,
+      "elapsed_seconds": 18.407,
+      "correct": true,
+      "exit_code": 0,
+      "timeout": false,
+      "tool_calls": 1,
+      "input_unchanged": true,
+      "task": "aggregate"
+    },
+    {
+      "condition": "B",
+      "usage": {
+        "input_tokens": 39931,
+        "cached_input_tokens": 30848,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 466,
+        "reasoning_output_tokens": 163
+      },
+      "total_tokens": 40397,
+      "elapsed_seconds": 24.797,
+      "correct": true,
+      "exit_code": 0,
+      "timeout": false,
+      "tool_calls": 1,
+      "input_unchanged": true,
+      "task": "aggregate"
+    },
+    {
+      "task": "assets",
+      "condition": "B",
+      "usage": {
+        "input_tokens": 39815,
+        "cached_input_tokens": 30464,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 278,
+        "reasoning_output_tokens": 0
+      },
+      "correct": true,
+      "elapsed_seconds": 16.438,
+      "exit_code": 0,
+      "timeout": false,
+      "fixture_sha256": "e87d362396c41864a45d2132a0044d1ec52d1450fc89de1c432cc4bb21c15781",
+      "input_unchanged": true,
+      "tool_calls": 1,
+      "total_tokens": 40093
+    },
+    {
+      "task": "assets",
+      "condition": "A",
+      "usage": {
+        "input_tokens": 51869,
+        "cached_input_tokens": 36608,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 120,
+        "reasoning_output_tokens": 0
+      },
+      "correct": true,
+      "elapsed_seconds": 15.344,
+      "exit_code": 0,
+      "timeout": false,
+      "fixture_sha256": "e87d362396c41864a45d2132a0044d1ec52d1450fc89de1c432cc4bb21c15781",
+      "input_unchanged": true,
+      "tool_calls": 1,
+      "total_tokens": 51989
+    },
+    {
+      "task": "timeline",
+      "condition": "A",
+      "usage": {
+        "input_tokens": 51941,
+        "cached_input_tokens": 36608,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 162,
+        "reasoning_output_tokens": 32
+      },
+      "correct": true,
+      "elapsed_seconds": 17.968,
+      "exit_code": 0,
+      "timeout": false,
+      "fixture_sha256": "57a296881834270ed145d78b3c5527bbb6eeed7a4beb33941adfcc6f08691342",
+      "input_unchanged": true,
+      "tool_calls": 1,
+      "total_tokens": 52103
+    },
+    {
+      "task": "timeline",
+      "condition": "B",
+      "usage": {
+        "input_tokens": 39743,
+        "cached_input_tokens": 30592,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 163,
+        "reasoning_output_tokens": 33
+      },
+      "correct": true,
+      "elapsed_seconds": 14.594,
+      "exit_code": 0,
+      "timeout": false,
+      "fixture_sha256": "57a296881834270ed145d78b3c5527bbb6eeed7a4beb33941adfcc6f08691342",
+      "input_unchanged": true,
+      "tool_calls": 1,
+      "total_tokens": 39906
+    },
+    {
+      "task": "review",
+      "condition": "B",
+      "usage": {
+        "input_tokens": 39745,
+        "cached_input_tokens": 30592,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 134,
+        "reasoning_output_tokens": 49
+      },
+      "correct": true,
+      "elapsed_seconds": 17.406,
+      "exit_code": 0,
+      "timeout": false,
+      "fixture_sha256": "315aedd62aa1519dffc507ea087762b55a557a3cceadfa9b693ab8c4510fd822",
+      "input_unchanged": true,
+      "tool_calls": 1,
+      "total_tokens": 39879
+    },
+    {
+      "task": "review",
+      "condition": "A",
+      "usage": {
+        "input_tokens": 51915,
+        "cached_input_tokens": 36608,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 108,
+        "reasoning_output_tokens": 0
+      },
+      "correct": true,
+      "elapsed_seconds": 19.203,
+      "exit_code": 0,
+      "timeout": false,
+      "fixture_sha256": "315aedd62aa1519dffc507ea087762b55a557a3cceadfa9b693ab8c4510fd822",
+      "input_unchanged": true,
+      "tool_calls": 1,
+      "total_tokens": 52023
+    }
+  ],
+  "summary": {
+    "A": {
+      "input_tokens": 207713,
+      "cached_input_tokens": 146560,
+      "output_tokens": 679,
+      "reasoning_output_tokens": 32,
+      "n": 4,
+      "total_tokens": 208392,
+      "uncached_input_tokens": 61153,
+      "median_seconds": 18.1875,
+      "total_seconds": 70.922
+    },
+    "B": {
+      "input_tokens": 159234,
+      "cached_input_tokens": 122496,
+      "output_tokens": 1041,
+      "reasoning_output_tokens": 245,
+      "n": 4,
+      "total_tokens": 160275,
+      "uncached_input_tokens": 36738,
+      "median_seconds": 16.921999999999997,
+      "total_seconds": 73.235
+    }
+  },
+  "reduction_percent": 23.08965795232063,
+  "uncached_input_reduction_percent": 39.924451784867465,
+  "test_total_tokens": 368667,
+  "additional_three_pairs_tokens": 275993,
+  "earlier_failed_run_tokens": 92364,
+  "earlier_failed_run_excluded": true,
+  "scope": "Four small reproducible file-task pairs with one tool call per run. Cache differs. Not a production-project, billing or speed guarantee."
+}

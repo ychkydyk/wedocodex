@@ -1,0 +1,51 @@
+{
+  "version_tested": "0.3.0-beta.1",
+  "release": "0.3.0-beta.2",
+  "timezone": "Europe/Moscow",
+  "requested_model": "gpt-6.1-sol",
+  "effort": "medium",
+  "rows": [
+    {
+      "condition": "A",
+      "usage": {
+        "input_tokens": 51988,
+        "cached_input_tokens": 36736,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 289,
+        "reasoning_output_tokens": 0
+      },
+      "total_tokens": 52277,
+      "elapsed_seconds": 18.407,
+      "correct": true,
+      "exit_code": 0,
+      "timeout": false,
+      "tool_calls": 1,
+      "input_unchanged": true
+    },
+    {
+      "condition": "B",
+      "usage": {
+        "input_tokens": 39931,
+        "cached_input_tokens": 30848,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 466,
+        "reasoning_output_tokens": 163
+      },
+      "total_tokens": 40397,
+      "elapsed_seconds": 24.797,
+      "correct": true,
+      "exit_code": 0,
+      "timeout": false,
+      "tool_calls": 1,
+      "input_unchanged": true
+    }
+  ],
+  "total_tokens": 92674,
+  "reduction_percent": 22.72509899190849,
+  "uncached_input_reduction_percent": 40.447154471544714,
+  "fixture_sha256": "fa54f7f84b5d36069af3ae9615a0c659d798b1d75cce357fa19294cc1d0d99a6",
+  "fixture_rows": 80,
+  "scope": "One paired file-aggregation task. Different cache counts; no cost or speed guarantee.",
+  "earlier_failed_run_tokens": 92364,
+  "earlier_failed_run_included_in_savings": false
+}

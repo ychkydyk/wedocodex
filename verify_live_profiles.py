@@ -19,7 +19,6 @@ def main():
         # Only an explicit, already-completed benchmark thread may be used.
         tid=opts.thread
         rpc.request('thread/resume',{'threadId':tid,'excludeTurns':True})
-        rpc.request('thread/settings/update',{'threadId':tid,'model':'gpt-6.1-sol','effort':'medium'})
         before=w.runtime.snapshot(rpc,tid,cwd)
         for mode in ('token-saver','fast-flow','max-quality','guarded','autopilot'):
             plan=w.runtime.live_apply(rpc,home,tid,cwd,mode,w.settings(mode),dry_run=True)

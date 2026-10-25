@@ -13,9 +13,9 @@ from skill.scripts import wedocodex as w
 from verify_runtime import run_suite
 
 ROOT = Path(__file__).resolve().parent
-FILES = ['README.md', 'LICENSE', '.gitignore', 'wedocodex.py', 'wedocodex.cmd',
+FILES = ['README.md', 'README.ru.md', 'LICENSE', '.gitignore', 'wedocodex.py', 'wedocodex.cmd',
          'test_wedocodex.py', 'test_release.py', 'test_lifecycle.py', 'test_runtime_profiles.py', 'verify_runtime.py', 'verify_live_profiles.py', 'build_release.py',
-         'migrate_legacy.py', 'bench_live.py', 'bench_ab.py', 'bench_mechanics.py', 'bench_warm.py', 'probe_context.py', 'probe_quota.py',
+         'migrate_legacy.py', 'bench_live.py', 'bench_ab.py', 'bench_mechanics.py', 'bench_warm.py', 'bench_installed.py', 'bench_file_suite.py', 'preflight_tools.py', 'build_plugin.py', 'probe_context.py', 'probe_quota.py',
          'skill/SKILL.md', 'skill/LICENSE', 'skill/agents/openai.yaml', 'skill/references/ultra-config-map.md',
          'skill/scripts/wedocodex.py', 'skill/scripts/managed_install.py', 'skill/scripts/runtime_profiles.py']
 
@@ -29,13 +29,14 @@ def main():
     if test.returncode:
         raise RuntimeError(test.stderr)
     runtime = run_suite()
-    cli_version = subprocess.run([shutil.which('codex'), '--version'], capture_output=True, text=True, check=True).stdout.strip()
+    test_count = int(re.search(r'Ran (\d+) tests?', test.stdout + test.stderr).group(1))
+    cli_version = subprocess.run([w.resolve_executable(), '--version'], capture_output=True, text=True, check=True).stdout.strip()
     qa = f'''# WEDOCODEX release verification - {w.VERSION}
 
 Date: {datetime.now(timezone(timedelta(hours=3))).isoformat()}. Time zone: Europe/Moscow.
 Platform: Windows. CLI: {cli_version}. Python: {sys.version.split()[0]}.
 
-34 regression tests passed. 7 local App Server config checks passed.
+{test_count} regression tests passed. {len(runtime['results'])} local App Server config checks passed.
 
 Verified: self-contained installed skill; conflict preflight; rollback on a simulated late write failure; literal Unicode/quoted arguments in a real child process; refusal of batch shims and option-shaped session IDs; invalid catalog handling; explicit model overrides; noninteractive menu errors; all five effective presets; launcher overrides beat a loaded trusted-project conflict; malformed TOML is rejected.
 
@@ -49,7 +50,9 @@ Preview/apply/undo of model and effort was verified for all five modes through t
 
 Update/uninstall/recover use owned-file hashes, verified timestamped backups and per-file atomic writes. User edits block changes. Interrupted transactions are recoverable; stale locks after hard process termination require checking that the installer has stopped. Two additional tests cover exact-baseline migration and refusal of a modified legacy installation.
 
-macOS/Linux remain untested by owner decision. OS sandbox enforcement and resume end-to-end remain unverified. Beta only. The source and portable installed skill are licensed under MIT starting with beta.3. No external publication.
+The corrected Windows file benchmark covers four paired tasks and eight fresh sessions, all correct, one successful tool call per session: 208392 -> 160275 total tokens (-23.1%). Uncached input 61153 -> 36738 (-39.9%). Cached input differs: 146560 -> 122496. Aggregate elapsed time 70.922 -> 73.235 seconds: no speed claim. Test consumption 368667 tokens; the three additional pairs consumed 275993. The earlier failed sandbox run cost 92364 tokens and is excluded from savings. Native CLI discovery was verified with an empty PATH through the registered official VS Code extension.
+
+macOS/Linux remain untested by owner decision. Windows sandbox file access was verified; resume end-to-end remains unverified. Beta only. Source and skill carry MIT. This build performs no external publication.
 '''
     qa_name = stamp + '-second-test.md'
     with (report_dir / qa_name).open('x', encoding='utf-8') as f:
@@ -59,12 +62,13 @@ macOS/Linux remain untested by owner decision. OS sandbox enforcement and resume
     assert payload['LICENSE'] == payload['skill/LICENSE'], 'Installed skill must carry the same MIT license'
     payload[qa_name] = qa.encode('utf-8')
     # Check UTF-8 docs and reject damaged text before packaging.
-    assert 'Пять режимов' in payload['README.md'].decode('utf-8')
+    assert 'Five task profiles' in payload['README.md'].decode('utf-8')
+    assert 'Пять режимов' in payload['README.ru.md'].decode('utf-8')
     for relative, data in payload.items():
         if re.search(rb'[A-Za-z]:[/\\]Users[/\\]', data):
             raise RuntimeError('Absolute user-directory path in release: ' + relative)
         for forbidden in (b'auth.json', b'BEGIN PRIVATE KEY'):
-            if forbidden in data and relative != 'build_release.py':
+            if forbidden in data and relative not in ('build_release.py', 'build_plugin.py'):
                 raise RuntimeError('Local/private marker in release: ' + relative)
     manifest = {'version': w.VERSION, 'license': 'MIT', 'timezone': 'Europe/Moscow',
                 'created_at': datetime.now(timezone(timedelta(hours=3))).isoformat(),
@@ -90,8 +94,8 @@ macOS/Linux remain untested by owner decision. OS sandbox enforcement and resume
     with archive.with_suffix('.sha256').open('x', encoding='utf-8') as f:
         f.write(digest + '  ' + archive.name + '\n')
     print(json.dumps({'archive': str(archive), 'sha256': digest, 'qa_report': str(report_dir / qa_name),
-                      'unit_tests': 34, 'runtime_checks': len(runtime['results']),
-                      'extracted_package_tests': 34}, indent=2))
+                      'unit_tests': test_count, 'runtime_checks': len(runtime['results']),
+                      'extracted_package_tests': test_count}, indent=2))
 
 if __name__ == '__main__':
     main()

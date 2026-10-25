@@ -1,0 +1,28 @@
+{
+  "release": "0.3.0-beta.2",
+  "timezone": "Europe/Moscow",
+  "scope": "Saver + Autopilot functional smoke test; not a separate savings estimate.",
+  "requested_model": "gpt-6.1-sol",
+  "effort": "medium",
+  "row": {
+    "task": "assets",
+    "condition": "B",
+    "usage": {
+      "input_tokens": 40232,
+      "cached_input_tokens": 30976,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 441,
+      "reasoning_output_tokens": 0
+    },
+    "correct": true,
+    "elapsed_seconds": 18.734,
+    "exit_code": 0,
+    "timeout": false,
+    "fixture_sha256": "e87d362396c41864a45d2132a0044d1ec52d1450fc89de1c432cc4bb21c15781",
+    "input_unchanged": true,
+    "tool_calls": 1,
+    "total_tokens": 40673,
+    "checkpoint_verified": true
+  },
+  "total_tokens": 40673
+}

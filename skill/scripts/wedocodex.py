@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 import hashlib
 import json
 import os
+import platform
 from pathlib import Path
 import shutil
 import subprocess
@@ -18,7 +19,7 @@ except ImportError:
     import runtime_profiles as runtime
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = '0.3.0-beta.1'
+VERSION = '0.3.0-beta.2'
 MSK = timezone(timedelta(hours=3), 'Europe/Moscow')
 PROFILES = {
     'token-saver': ('gpt-6-luna', 'low', 'workspace-write', 'on-request'),
@@ -38,7 +39,9 @@ MODES = {
 def codex_home():
     return Path(os.environ.get('CODEX_HOME') or Path.home() / '.codex')
 
-def settings(name, model=None, effort=None):
+def settings(name, model=None, effort=None, autopilot=False):
+    if autopilot and name != 'token-saver':
+        raise ValueError('The Autopilot overlay is supported with Token Saver only')
     default_model, default_effort, sandbox, approval = PROFILES[name]
     model = model or default_model
     effort = effort or default_effort
@@ -49,7 +52,7 @@ def settings(name, model=None, effort=None):
     result = dict(model=model, model_reasoning_effort=effort,
                   sandbox_mode=sandbox, approval_policy=approval)
     result['sandbox_workspace_write.network_access'] = False
-    result['tui.auto_recap'] = name == 'autopilot'
+    result['tui.auto_recap'] = name == 'autopilot' or autopilot
     # Native runtime controls, not a request to the model to be economical.
     result['skills.max_context_tokens'] = {
         'token-saver': 2000, 'fast-flow': 4000, 'max-quality': 10000,
@@ -62,7 +65,7 @@ def settings(name, model=None, effort=None):
     if name == 'guarded':result['agents.enabled'] = False
     if model in {entry[0] for entry in PROFILES.values()}:
         result['model_verbosity'] = 'medium' if name == 'max-quality' else 'low'
-    if name == 'autopilot':
+    if name == 'autopilot' or autopilot:
         result['tui.notifications'] = True
         result['tui.notification_method'] = 'auto'
     return result
@@ -101,7 +104,7 @@ def save_report(slug, content, directory=None):
         json.dump(content, stream, ensure_ascii=False, indent=2)
     return path
 
-def command(name, workspace, resume=None, prompt=None, executable='codex', model=None, effort=None):
+def command(name, workspace, resume=None, prompt=None, executable='codex', model=None, effort=None, autopilot=False):
     args = [executable]
     if resume:
         if resume.startswith('-') or any(ord(c) < 32 for c in resume):
@@ -109,9 +112,11 @@ def command(name, workspace, resume=None, prompt=None, executable='codex', model
         args += ['resume', resume]
     # CLI overrides take precedence over project config and stale saved settings.
     args += ['--cd', str(Path(workspace).resolve())]
-    for key, value in settings(name, model, effort).items():
+    for key, value in settings(name, model, effort, autopilot).items():
         args += ['-c', f'{key}={toml_value(value)}']
     instruction = f'Use WEDOCODEX mode {name}. {MODES[name]} Follow applicable workspace instructions. '
+    if autopilot:
+        instruction += 'Also enable the Autopilot workflow. ' + MODES['autopilot'] + ' '
     instruction += 'This mode does not authorize additional spending, delegation, publishing or access changes.'
     if prompt:
         instruction += '\nTask: ' + prompt
@@ -134,16 +139,57 @@ def check_catalog(home, name, model=None, effort=None):
         raise RuntimeError(f'Catalog does not advertise {model}/{effort}; no silent substitution.')
     print(f'Local catalog: {model}/{effort}. Entitlement is unverified until a successful model response.')
 
+def vscode_executables():
+    """Find registered official VS Code bundles; never search arbitrary executables."""
+    architecture = platform.machine().lower()
+    folder = {'amd64': 'windows-x86_64', 'x86_64': 'windows-x86_64',
+              'arm64': 'windows-aarch64', 'aarch64': 'windows-aarch64'}.get(architecture)
+    if folder is None:
+        return []
+    result = []
+    for editor in ('.vscode', '.vscode-insiders'):
+        root = Path.home() / editor / 'extensions'
+        try:
+            entries = json.loads((root / 'extensions.json').read_text(encoding='utf-8'))
+            if not isinstance(entries, list):
+                continue
+            for entry in entries:
+                if not isinstance(entry, dict) or entry.get('identifier', {}).get('id') != 'openai.chatgpt':
+                    continue
+                relative = entry.get('relativeLocation', '')
+                if not isinstance(relative, str) or not re.fullmatch(r'openai\.chatgpt-[A-Za-z0-9._-]+', relative):
+                    continue
+                bundle = root / relative
+                package = json.loads((bundle / 'package.json').read_text(encoding='utf-8'))
+                if package.get('publisher') != 'openai' or package.get('name') != 'chatgpt':
+                    continue
+                executable = bundle / 'bin' / folder / 'codex.exe'
+                if executable.is_file():
+                    result.append(str(executable.resolve()))
+        except (OSError, ValueError, TypeError, AttributeError):
+            continue
+    return result
+
+
 def resolve_executable():
+    explicit = os.environ.get('WEDOCODEX_CODEX_EXE')
+    if explicit:
+        path = Path(explicit).expanduser()
+        if not path.is_absolute() or not path.is_file() or path.suffix.lower() in ('.cmd', '.bat') or (os.name == 'nt' and path.suffix.lower() != '.exe'):
+            raise RuntimeError('WEDOCODEX_CODEX_EXE must be an absolute path to the native Codex executable.')
+        return str(path.resolve())
     # Windows npm shims are batch files: shell=False cannot make them injection-safe.
     executable = shutil.which('codex.exe') if os.name == 'nt' else shutil.which('codex')
     if not executable:
         executable = shutil.which('codex')
-    if not executable:
-        raise RuntimeError('codex is not on PATH')
-    if Path(executable).suffix.lower() in ('.cmd', '.bat'):
-        raise RuntimeError('A Windows batch shim was found. Put the native codex.exe on PATH; no shell fallback is used.')
-    return executable
+    if executable and Path(executable).suffix.lower() not in ('.cmd', '.bat'):
+        return executable
+    if os.name == 'nt':
+        candidates = vscode_executables()
+        if candidates:
+            return candidates[0]
+    raise RuntimeError('Native Codex was not found on PATH or in registered VS Code extensions. '
+                       'Set WEDOCODEX_CODEX_EXE to the full native executable path. Batch shims are not executed.')
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -160,8 +206,11 @@ def main():
     parser.add_argument('--dry-run', action='store_true', help='Preview install/update/uninstall without changing installed files')
     parser.add_argument('--model', help='Explicit model override, checked against the local catalog')
     parser.add_argument('--effort', choices=['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'])
+    parser.add_argument('--autopilot', action='store_true', help='Combine Saver limits with Autopilot checkpoints, recap and terminal notifications')
     options = parser.parse_args()
     options.mode=aliases.get(options.mode,options.mode)
+    if options.autopilot and (options.mode != 'token-saver' or options.action not in ('run','show','preview')):
+        parser.error('--autopilot is supported with run/show/preview saver')
     maintenance = options.action in ('install', 'update', 'uninstall', 'recover')
     control=options.action in ('preview','live-preview','live-apply','live-undo')
     if not maintenance and not control and (options.home or options.skills_dir or options.dry_run):
@@ -179,7 +228,7 @@ def main():
         if options.action!='live-undo' and not options.mode:parser.error('Select a mode')
         if options.action.startswith('live-') and not options.thread:parser.error('Explicit --thread UUID required')
         home=(options.home or codex_home()).resolve();workspace=Path(options.workspace).resolve()
-        wanted=settings(options.mode,options.model,options.effort) if options.mode else None
+        wanted=settings(options.mode,options.model,options.effort,options.autopilot) if options.mode else None
         with runtime.Rpc(resolve_executable(),home,workspace,proxy=options.action.startswith('live-')) as rpc:
             if options.action=='preview':result={'scope':'configuration, not proof of an active chat', 'rows':runtime.preview_config(rpc,wanted,workspace)}
             elif options.action=='live-undo':result=runtime.live_undo(rpc,home,options.thread,workspace)
@@ -226,9 +275,9 @@ def main():
     if not options.mode:
         parser.error('mode is required for show/run')
     args = command(options.mode, options.workspace, options.resume, options.prompt,
-                   model=options.model, effort=options.effort)
+                   model=options.model, effort=options.effort, autopilot=options.autopilot)
     if options.action == 'show':
-        print(json.dumps({'settings': settings(options.mode, options.model, options.effort), 'argv': args}, ensure_ascii=False, indent=2))
+        print(json.dumps({'settings': settings(options.mode, options.model, options.effort,options.autopilot), 'argv': args}, ensure_ascii=False, indent=2))
         return
     if not Path(options.workspace).is_dir():
         raise RuntimeError('Workspace directory does not exist')

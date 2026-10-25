@@ -1,99 +1,74 @@
-# WEDOCODEX 0.3.0-beta.1
+# WEDOCODEX 0.3.0-beta.2
 
-Пять режимов Codex с реальными настройками движка, предварительным просмотром и откатом. Адаптация идеи Ultra Config для Codex; независимый проект под [MIT](LICENSE).
+Five task profiles for Codex: **Token Saver, Fast Flow, Max Quality, Guarded and Autopilot**. Native startup settings, explicit activation, previews and recoverable installation updates. [Русская версия](README.ru.md).
 
-## Что изменилось после проверки исходника Ultra Config
+Inspired by **[Ultra Config](https://github.com/davila7/claude-code-templates/tree/88cee4945062501c7012d3fc3adf4f68d5f9c3b7/cli-tool/components/mods/productivity/ultra-config)** by **Daniel (San) Ávila / davila7**. See [the author's explanation](https://dev.to/dani_avila7/ultra-config-switches-your-whole-claude-code-setup-between-five-profiles-mid-session-4199). We reviewed version 0.2.1 at the pinned commit. WEDOCODEX is an independent Codex adaptation, not a drop-in installation of the Claude Code mod. [Setting-by-setting mapping](skill/references/ultra-config-map.md).
 
-Мы изучили Ultra Config 0.2.1 в `davila7/claude-code-templates`, зафиксировав commit `88cee4945062501c7012d3fc3adf4f68d5f9c3b7`. Это мод Claude Code с собственным API настроек, панели и хранилища. Его команда `npx ... --mod productivity/ultra-config` не устанавливает мод в Codex.
+## Measured result
 
-В версии 0.2 WEDOCODEX режим экономии в основном задавал модель и короткую инструкцию. На одной модели эта инструкция не снизила расход. В 0.3 добавлены поддерживаемые Codex ограничения каталога навыков и истории вывода инструментов. Неподдерживаемые механизмы Claude не подменяются похожими названиями параметров.
+**23.1% fewer total tokens across four small paired file tasks.** Both conditions requested Sol 6.1 / medium. Eight fresh sessions, all answers correct, one successful tool call per session; input files unchanged. Run order alternated A/B, B/A, A/B, B/A.
 
-[Карта всех настроек пяти режимов](skill/references/ultra-config-map.md) содержит перенесённые, изменённые и пропущенные функции оригинала.
-
-## Измерение в токенах
-
-Три одинаковые для обоих вариантов задачи: агрегация JSON, поиск ошибки в Python, порядок зависимостей. В обоих вариантах запрошены Sol 6.1 / medium. По одному запуску каждого варианта на задачу, порядок чередуется. Все шесть ответов правильные.
-
-| Метрика, среднее на задачу | Стандартные настройки | Новый Token Saver |
+| Task | Default Codex | Token Saver |
 |---|---:|---:|
-| Входные токены | 18 133 | 13 931 |
-| В том числе кэшированные | 9 984 | 9 984 |
-| Некэшированный вход | 8 149 | 3 947 |
-| Выходные токены | 46,33 | 49,67 |
-| Всего | 18 179,33 | 13 980,67 |
+| Aggregate 80 records | 52,277 | 40,397 |
+| Check an asset manifest | 51,989 | 40,093 |
+| Calculate scenario timing | 52,103 | 39,906 |
+| Review a Python interpolation function | 52,023 | 39,879 |
+| **Total** | **208,392** | **160,275** |
 
-В этой серии сохранено **4 198,67 токена в среднем на задачу**, в том числе 4 202 токена некэшированного входа. Reasoning включён в выход, второй раз его не прибавляем. Медиана времени — 7,968 и 8,078 с: ускорение не подтверждено.
+Savings: **48,117 tokens**. Uncached input fell from **61,153 to 36,738**, or **39.9%**. Cached input differed: 146,560 versus 122,496. Output was 679 versus 1,041 tokens; reasoning is included in output, not added again. Aggregate elapsed time was 70.922 versus 73.235 seconds. We make no speed or billing guarantee.
 
-Это результат трёх небольших задач, не гарантия для всех проектов и тарифов. Большие tool outputs в этой серии не проверялись. Независимый ID обслужившей модели CLI не сообщил; выше указаны запрошенные настройки. Стоимость и расход подписки не рассчитываются из общего счётчика аккаунта.
+This is a small reproducible benchmark, not a production-repository evaluation or a head-to-head test against other optimizers. Total test consumption was 368,667 tokens, including cached input. Account-wide quota percentages were not used to attribute usage. Raw sanitized measurements are in [evidence](evidence/).
 
-Предыдущий вариант с отключёнными инструментами субагентов уменьшал общий контекст сильнее, но терял кэш. Поэтому выбран вариант, сохраняющий стабильный набор инструментов. Инструкции проекта о делегировании остаются в силе. Исходные неудачные тесты и промежуточные варианты сохранены.
+An earlier instruction-only version increased token use by about 0.35% on a same-model test. A failed Windows test consumed 92,364 tokens because its harness skipped platform configuration; it is excluded from the completed comparison and documented. These failures are not counted as savings.
 
-## Установка и запуск
+## Install and run
 
-Нужны Python 3.11+ и Codex CLI. Проверено на Windows с `0.162.0-alpha.17.2`. На Windows нужен native `codex.exe` в PATH; batch-shim `.cmd`/`.bat` не запускается через shell. macOS/Linux пока не проверены.
-
-После распаковки:
+Python 3.11+ and Codex CLI are required. Windows was tested with Codex 0.162.0-alpha.17.2. macOS/Linux remain untested.
 
 ```powershell
+git clone https://github.com/ychkydyk/wedocodex.git
+cd wedocodex
 python wedocodex.py install
-python wedocodex.py
+python wedocodex.py run saver --workspace C:/YourProject
 ```
 
-Меню показывает профиль, старые и новые значения, затем предлагает запустить Codex. Прямой запуск:
+For **Saver + Autopilot together**:
 
 ```powershell
-python wedocodex.py preview saver --workspace D:/Project
-python wedocodex.py run saver --workspace D:/Project
+python wedocodex.py preview saver --autopilot --workspace C:/YourProject
+python wedocodex.py run saver --autopilot --workspace C:/YourProject
 ```
 
-Для сравнения на одной модели:
+The combination keeps Saver's model/effort and context budgets, enables recap and terminal notifications, and adds brief milestone checkpoints. Its separate live smoke test completed the task and wrote the required checkpoint using 40,673 tokens. That functional test does not establish a savings percentage for the combination.
 
-```powershell
-python wedocodex.py run saver --workspace D:/Project --model gpt-6.1-sol --effort medium
-```
+For fixed-model comparisons, add `--model gpt-6.1-sol --effort medium`. No model is silently substituted. A catalog entry does not prove account entitlement.
 
-Установка добавляет файлы профилей в `$CODEX_HOME` (обычно `~/.codex`) и навык в `~/.agents/skills/wedocodex`. Основной config.toml не переписывается. Если навык уже зарегистрирован в другой поддерживаемой папке, обновляйте существующую установку, не создавайте дубликат.
+On Windows, the launcher finds native `codex.exe` on PATH or in registered official VS Code / VS Code Insiders extensions. A custom installation can set `WEDOCODEX_CODEX_EXE` to its absolute native executable path. Batch shims are never executed through a shell.
 
-```text
-$wedocodex
-$wedocodex token-saver
-```
+## What the modes do
 
-Вызов навыка в чате меняет поведение. Для измеренного сокращения стартового контекста нужны реальные настройки запуска, приведённые выше. Сам текст `$wedocodex` не переключает модель, права или лимит каталога текущего клиента.
+| Mode | Default model / effort | Skill catalog budget | Tool-output history limit | Workflow |
+|---|---|---:|---:|---|
+| Token Saver | Luna / low | 2,000 | 6,000 | Targeted reads, concise output, deterministic routines |
+| Fast Flow | Sol 6.1 / medium | 4,000 | 8,000 | Few interruptions within workspace permissions; denied actions stay denied |
+| Max Quality | Astra / max | 10,000 | 16,000 | More reasoning and verification for difficult work |
+| Guarded | Sol 6.1 / medium | 6,000 | 8,000 | Read-only shell and audit-oriented behavior |
+| Autopilot | Sol 6.1 / medium | 4,000 | 8,000 | Continue the authorized task, checkpoints, verification and recap |
 
-## Пять профилей
+Autopilot is a workflow preset while Codex remains open. It is not a background daemon, scheduled agent, mobile push service or automatic Telegram reporter. It does not grant spending, delegation, publishing or broader access. Extra recaps and checkpoints can consume tokens.
 
-| Профиль | Модель / effort по умолчанию | Каталог навыков | История одного tool output |
-|---|---|---:|---:|
-| Token Saver (`saver`) | Luna / low | 2000 | 6000 |
-| Fast Flow (`flow`) | Sol 6.1 / medium | 4000 | 8000 |
-| Max Quality (`quality`) | Astra / max | 10000 | 16000 |
-| Guarded | Sol 6.1 / medium | 6000 | 8000 |
-| Autopilot | Sol 6.1 / medium | 4000 | 8000 |
+Guarded does not isolate secrets and shell permissions do not technically block every connector mutation. The skill also instructs the agent to avoid mutations during an audit.
 
-Лимит каталога сокращает начальное описание доступных навыков. Полный SKILL.md выбранного навыка по-прежнему читается. Часть навыков может не попасть в первоначальные предложения: для профильной работы вызывайте нужный навык явно или выбирайте более широкий режим. Сторонние плагины не удаляются и не переписываются.
+## What changes when
 
-Token Saver выключает автоматические recap и задаёт короткий вывод. Fast Flow использует workspace-write без запросов shell-эскалации; запрещённая операция возвращает ошибку. Guarded — read-only, без инструментов субагентов. Autopilot включает recap и терминальные уведомления, но не создаёт планировщиков или внешних отправок. Автоматические массовые делегации не включаются ни одним режимом.
+Calling `$wedocodex` in a chat selects behavior. It does not retroactively change that chat's startup context, model or permissions. Full startup limits require the launcher and a new session. Restarting VS Code alone does not select Saver.
 
-## Переключение в существующем диалоге
+The skill-list budget reduces discovery descriptions and may omit skills from initial suggestions. An explicitly selected skill still loads its full SKILL.md. No other skills or plugins are deleted or rewritten. Native automatic compaction is inherited rather than replaced.
 
-Штатный путь: `/model`, `/permissions`, затем `/status`. Дополнительно реализован адаптер локального Codex App Server:
+For idle sessions, use native `/model`, `/permissions` and `/status`. Optional `live-preview`, `live-apply` and `live-undo` use a compatible local App Server proxy and require an exact thread UUID and workspace. Model/effort apply and undo were tested for all five modes on an isolated completed thread. Named permission profiles are preserved and blocked fields reported. The tested IDE did not expose the required proxy, so live attachment to that IDE is not claimed. Startup limits still require a new launch.
 
-```powershell
-python wedocodex.py live-preview saver --thread EXACT_UUID --workspace D:/Project
-python wedocodex.py live-apply saver --thread EXACT_UUID --workspace D:/Project
-python wedocodex.py live-undo --thread EXACT_UUID --workspace D:/Project
-```
-
-Он работает между ходами, проверяет UUID и рабочую папку, читает результат обратно и отказывается затирать ручные изменения при undo. Модель/effort проверены для всех пяти режимов на отдельной завершённой тестовой сессии, без запуска новых model turns.
-
-Именованные политики разрешений сохраняются: заблокированные изменения выводятся явно. Лимиты каталога/вывода и настройки интерфейса требуют нового запуска. Частичное применение не обозначается как активация всего профиля.
-
-Нужен открытый локальный App Server proxy. В использованном desktop/IDE-окружении доступного proxy не было: работа самого API проверена через отдельный сервер, а присоединение к текущему приложению не заявляется. Если клиент не предоставляет proxy, используйте штатные переключатели или новый запуск. Диалог без сохранённой истории нельзя использовать для этой проверки. Пользовательский черновик или активный ход не прерываются.
-
-## Обновление и удаление
-
-Запускайте из новой распакованной версии:
+## Updates and removal
 
 ```powershell
 python wedocodex.py update --dry-run
@@ -102,19 +77,26 @@ python wedocodex.py uninstall --dry-run
 python wedocodex.py uninstall
 ```
 
-Манифест `wedocodex-install.json` хранит хеши файлов пакета. Пользовательские изменения блокируют операцию до записи. Неизвестные файлы, основной config.toml и резервные копии остаются. Файлы записываются атомарно, история — в `wedocodex-history`. Для прерванной операции есть `recover`. После аварийного завершения процесса lock может остаться: сначала убедитесь, что установщик остановлен.
+Run update from the new unpacked package. Owned-file hashes detect conflicts before writes. Timestamped backups, per-file atomic replacement and a recovery journal preserve user changes. `recover` handles interrupted transactions; do not remove a stale lock until its installer is confirmed stopped. The base config.toml is not rewritten.
 
-Для старой beta.1 без манифеста есть `migrate_legacy.py`: требуется прежний ZIP и заранее известный SHA-256; каждый старый файл сверяется до миграции.
+## Verification and distribution
 
-## Проверки и границы
+The release build runs 40 automated regression tests, eight local effective-configuration checks and the extracted-package tests. These checks make no model requests. `preflight_tools.py` checks sandbox file access before paid tests. It does not prove every model-generated command will pass policy review.
+
+Opt-in model tests:
 
 ```powershell
-python -m unittest -v test_wedocodex test_release test_lifecycle test_runtime_profiles
-python verify_runtime.py
+python bench_file_suite.py --all-four
+python bench_file_suite.py --all-four --run
+python bench_file_suite.py --combined-smoke --run
 ```
 
-34 unit-теста, 7 проверок эффективной конфигурации, пять циклов live preview/apply/undo. Повторная проверка распакованного архива входит в сборку. Автоматическая сборка не вызывает модели. `bench_ab.py`, `bench_mechanics.py`, `bench_warm.py` требуют явного `--run`; счётчики запроса отделены от защитного общего потолка квоты.
+The first command only prints a plan. Commands with `--run` consume model tokens. Repeated measurements and larger workloads are still needed.
 
-Guarded не является изоляцией секретов: read-only запрещает запись shell-процессу, но не всё чтение и не все действия коннекторов. Уведомления зависят от терминала; доставка события notify подтверждена, визуальная доставка не заявляется. Доступ аккаунта к конкретной модели подтверждает только успешный запрос, а не локальный каталог.
+Two artifacts are provided: a standalone source/installer ZIP and a skills-only Codex plugin ZIP. The plugin includes portable `plugin.json` plus the Codex compatibility manifest and a self-contained skill. Local extraction and launcher execution are checked; public-directory approval is not claimed. Avoid enabling duplicate standalone and plugin copies of the skill.
 
-Источники: [Ultra Config](https://github.com/davila7/claude-code-templates/tree/88cee4945062501c7012d3fc3adf4f68d5f9c3b7/cli-tool/components/mods/productivity/ultra-config), [Codex configuration](https://learn.chatgpt.com/docs/config-file/config-reference), [Skills](https://learn.chatgpt.com/docs/build-skills), [App Server](https://learn.chatgpt.com/docs/app-server).
+## Positioning
+
+WEDOCODEX packages native Codex settings and explicit workflow choices. It does not replace tool-output compressors such as RTK, indexed-context tools such as context-mode, provider gateways or iterative agent-loop engines. We have not demonstrated better savings than those tools. The practical focus is a small local setup, clear boundaries, safe updates and transparent same-model measurements.
+
+Licensed under [MIT](LICENSE). Independent project; no affiliation with OpenAI, Anthropic or the Ultra Config author is implied.

@@ -42,6 +42,28 @@ class ReleaseTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 w.settings('token-saver', effort=effort)
 
+    def test_saver_autopilot_keeps_limits_and_model(self):
+        s=w.settings('token-saver',autopilot=True)
+        self.assertEqual((s['model'],s['model_reasoning_effort']),('gpt-6-luna','low'))
+        self.assertEqual((s['skills.max_context_tokens'],s['tool_output_token_limit']),(2000,6000))
+        self.assertTrue(s['tui.auto_recap'])
+        self.assertTrue(s['tui.notifications'])
+        self.assertNotIn('agents.enabled',s)
+        args=w.command('token-saver',self.home,autopilot=True)
+        self.assertIn('milestones',args[-1])
+        self.assertIn('targeted searches',args[-1])
+
+    def test_autopilot_overlay_does_not_weaken_guarded(self):
+        with self.assertRaises(ValueError):w.settings('guarded',autopilot=True)
+        result=subprocess.run([sys.executable,str(w.ROOT/'scripts/wedocodex.py'),'show','guarded','--autopilot'],capture_output=True,text=True)
+        self.assertEqual(result.returncode,2)
+
+    def test_combined_cli_show_applies_overlay(self):
+        result=subprocess.run([sys.executable,str(w.ROOT/'scripts/wedocodex.py'),'show','saver','--autopilot','--model','gpt-6.1-sol','--effort','medium'],capture_output=True,text=True,check=True)
+        s=json.loads(result.stdout)['settings']
+        self.assertEqual((s['model'],s['model_reasoning_effort']),('gpt-6.1-sol','medium'))
+        self.assertTrue(s['tui.notifications'])
+
     def test_catalog_missing_corrupt_wrong_shape_and_unsupported(self):
         with self.assertRaises(RuntimeError):
             w.check_catalog(self.home, 'token-saver')
@@ -112,8 +134,41 @@ class ReleaseTests(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
 
     def test_batch_shim_not_executed(self):
-        with patch.object(w.shutil, 'which', return_value='C:/tools/codex.cmd'), self.assertRaises(RuntimeError):
+        with patch.dict(os.environ, {}, clear=True), patch.object(w.shutil, 'which', return_value='C:/tools/codex.cmd'), patch.object(w, 'vscode_executables', return_value=[]), self.assertRaises(RuntimeError):
             w.resolve_executable()
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows bundle fallback')
+    def test_missing_path_uses_registered_official_bundle(self):
+        root = self.home / '.vscode/extensions'
+        relative = 'openai.chatgpt-26.1007.21434-win32-x64'
+        bundle = root / relative
+        native = bundle / 'bin/windows-x86_64/codex.exe'
+        native.parent.mkdir(parents=True)
+        native.write_bytes(b'test fixture; never executed')
+        (bundle / 'package.json').write_text(json.dumps({'publisher': 'openai', 'name': 'chatgpt'}))
+        (root / 'extensions.json').write_text(json.dumps([
+            {'identifier': {'id': 'openai.chatgpt'}, 'relativeLocation': relative}]))
+        with patch.dict(os.environ, {}, clear=True), patch.object(w.shutil, 'which', return_value=None), patch.object(w.Path, 'home', return_value=self.home), patch.object(w.platform, 'machine', return_value='AMD64'):
+            self.assertEqual(w.resolve_executable(), str(native.resolve()))
+            # A bundle with the wrong publisher must never be selected.
+            (bundle / 'package.json').write_text(json.dumps({'publisher': 'someone-else', 'name': 'chatgpt'}))
+            with self.assertRaises(RuntimeError):
+                w.resolve_executable()
+
+    def test_invalid_explicit_executable_does_not_fall_back(self):
+        with patch.dict(os.environ, {'WEDOCODEX_CODEX_EXE': str(self.home / 'missing.exe')}), patch.object(w.shutil, 'which', return_value='valid-codex'), self.assertRaises(RuntimeError):
+            w.resolve_executable()
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows bundle discovery')
+    def test_unregistered_or_malformed_extension_is_not_selected(self):
+        root = self.home / '.vscode/extensions'
+        native = root / 'openai.chatgpt-999.0.0/bin/windows-x86_64/codex.exe'
+        native.parent.mkdir(parents=True)
+        native.write_bytes(b'not registered; never executed')
+        with patch.object(w.Path, 'home', return_value=self.home), patch.object(w.platform, 'machine', return_value='AMD64'):
+            self.assertEqual(w.vscode_executables(), [])
+            (root / 'extensions.json').write_text('broken')
+            self.assertEqual(w.vscode_executables(), [])
 
 if __name__ == '__main__':
     unittest.main()

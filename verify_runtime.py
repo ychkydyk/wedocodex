@@ -69,7 +69,7 @@ def run_suite():
     folder = ROOT / 'qa' / (stamp + '-runtime-test2')
     home = folder / 'home'; workspace = folder / 'workspace'
     home.mkdir(parents=True); workspace.mkdir()
-    executable = shutil.which('codex')
+    executable = w.resolve_executable()
     results = []
     def lookup(config, dotted):
         for key in dotted.split('.'):
@@ -83,6 +83,12 @@ def run_suite():
         actual = {key: lookup(data['config'], key) for key in w.settings(name)}
         assert actual == w.settings(name), (name, actual)
         results.append({'case': 'profile-values-' + name, 'passed': True, 'actual': actual})
+    combined_home=home/'saver-autopilot';combined_home.mkdir()
+    combined=w.settings('token-saver',autopilot=True)
+    (combined_home/'config.toml').write_text('\n'.join(k+'='+json.dumps(v) for k,v in combined.items())+'\n',encoding='utf-8')
+    combined_read=read_config(executable,combined_home,workspace)['config']
+    assert {k:lookup(combined_read,k) for k in combined}==combined
+    results.append({'case':'saver-autopilot-combined','passed':True})
     # A trusted project deliberately conflicts with the launcher settings.
     override_home = home / 'precedence'; override_home.mkdir()
     (workspace / '.git').mkdir()
