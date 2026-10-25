@@ -34,7 +34,22 @@
 
 ## Установка и запуск
 
-Нужны Python 3.11+ и Codex CLI. Проверено на Windows с `0.162.0-alpha.17.2`. На Windows запускатель ищет native `codex.exe` в PATH, затем в зарегистрированном расширении OpenAI для VS Code / VS Code Insiders. Для нестандартной установки можно задать полный путь через `WEDOCODEX_CODEX_EXE`. Batch-shim `.cmd`/`.bat` не запускается через shell. macOS/Linux пока не проверены.
+Нужны Python 3.11+ и Codex CLI. Проверено на Windows с `0.162.0-alpha.17.2`. На Windows запускатель ищет native `codex.exe` в PATH, затем в зарегистрированном расширении OpenAI для VS Code / VS Code Insiders. Для нестандартной установки можно задать полный путь через `WEDOCODEX_CODEX_EXE`. Batch-shim `.cmd`/`.bat` не запускается через shell. **macOS — экспериментально: инструкция подготовлена, проверки на реальном Mac пока не было.** Linux тоже не проверен.
+
+На macOS используется тот же Python-пакет. Установите Python 3.11+ и [Codex CLI](https://learn.chatgpt.com/docs/cli), выполните вход через `codex`, затем закройте его перед запуском профиля. Команда `codex` должна быть доступна в PATH; поиск внутри приложения или расширения VS Code на Mac не реализован.
+
+Из папки пакета в Terminal:
+
+```bash
+python3 --version
+codex --version
+python3 wedocodex.py install --dry-run
+python3 wedocodex.py install
+python3 wedocodex.py preview saver --autopilot --workspace "$HOME/Projects/My Project"
+python3 wedocodex.py run saver --autopilot --workspace "$HOME/Projects/My Project"
+```
+
+Подставьте существующую папку проекта. Если `python3` старее 3.11, используйте установленный новый Python. Подробности — [MACOS.md](MACOS.md). Sandbox, уведомления, запуск модели и экономия на macOS пока не подтверждены; цифра −23,1% получена на Windows.
 
 После распаковки:
 
@@ -119,7 +134,7 @@ python -m unittest -v test_wedocodex test_release test_lifecycle test_runtime_pr
 python verify_runtime.py
 ```
 
-34 unit-теста, 7 проверок эффективной конфигурации, пять циклов live preview/apply/undo. Повторная проверка распакованного архива входит в сборку. Автоматическая сборка не вызывает модели. `bench_ab.py`, `bench_mechanics.py`, `bench_warm.py` требуют явного `--run`; счётчики запроса отделены от защитного общего потолка квоты.
+40 unit-тестов, 8 проверок эффективной конфигурации, пять циклов live preview/apply/undo. Повторная проверка распакованного архива входит в сборку. Автоматическая сборка не вызывает модели. `bench_ab.py`, `bench_mechanics.py`, `bench_warm.py` требуют явного `--run`; счётчики запроса отделены от защитного общего потолка квоты.
 
 Guarded не является изоляцией секретов: read-only запрещает запись shell-процессу, но не всё чтение и не все действия коннекторов. Уведомления зависят от терминала; доставка события notify подтверждена, визуальная доставка не заявляется. Доступ аккаунта к конкретной модели подтверждает только успешный запрос, а не локальный каталог.
 

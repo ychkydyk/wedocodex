@@ -13,7 +13,7 @@ from skill.scripts import wedocodex as w
 from verify_runtime import run_suite
 
 ROOT = Path(__file__).resolve().parent
-FILES = ['README.md', 'README.ru.md', 'LICENSE', '.gitignore', 'wedocodex.py', 'wedocodex.cmd',
+FILES = ['README.md', 'README.ru.md', 'MACOS.md', 'LICENSE', '.gitignore', 'wedocodex.py', 'wedocodex.cmd',
          'test_wedocodex.py', 'test_release.py', 'test_lifecycle.py', 'test_runtime_profiles.py', 'verify_runtime.py', 'verify_live_profiles.py', 'build_release.py',
          'migrate_legacy.py', 'bench_live.py', 'bench_ab.py', 'bench_mechanics.py', 'bench_warm.py', 'bench_installed.py', 'bench_file_suite.py', 'preflight_tools.py', 'build_plugin.py', 'probe_context.py', 'probe_quota.py',
          'skill/SKILL.md', 'skill/LICENSE', 'skill/agents/openai.yaml', 'skill/references/ultra-config-map.md',

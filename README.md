@@ -24,7 +24,18 @@ An earlier instruction-only version increased token use by about 0.35% on a same
 
 ## Install and run
 
-Python 3.11+ and Codex CLI are required. Windows was tested with Codex 0.162.0-alpha.17.2. macOS/Linux remain untested.
+Python 3.11+ and Codex CLI are required. Windows was tested with Codex 0.162.0-alpha.17.2. **macOS is experimental: the Terminal setup is documented, but no real Mac has been tested.** Linux remains untested. See the [macOS guide](MACOS.md).
+
+On macOS, install Codex CLI separately and make `codex` available on PATH; macOS app or VS Code bundle discovery is not implemented. After signing in through Codex, use the same Python package from Terminal:
+
+```bash
+python3 wedocodex.py install --dry-run
+python3 wedocodex.py install
+python3 wedocodex.py preview saver --autopilot --workspace "$HOME/Projects/My Project"
+python3 wedocodex.py run saver --autopilot --workspace "$HOME/Projects/My Project"
+```
+
+Use an existing workspace. If `python3` is older than 3.11, use your newer Python executable consistently. The 23.1% benchmark was measured on Windows, not macOS.
 
 ```powershell
 git clone https://github.com/ychkydyk/wedocodex.git
