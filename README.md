@@ -22,6 +22,26 @@ This is a small reproducible benchmark, not a production-repository evaluation o
 
 An earlier instruction-only version increased token use by about 0.35% on a same-model test. A failed Windows test consumed 92,364 tokens because its harness skipped platform configuration; it is excluded from the completed comparison and documented. These failures are not counted as savings.
 
+## Quick install with npx
+
+With Node.js 18+ (npm/npx), Git and Python 3.11+ installed:
+
+```bash
+npx --yes github:ychkydyk/wedocodex install
+```
+
+This fetches the package from our GitHub repository and runs the existing Python installer. It is **not** an npm-registry release named `wedocodex`; do not substitute `npx wedocodex`. Codex CLI is required to use the modes. The wrapper does not install prerequisites or submit a model request.
+
+Preview installation with `npx --yes github:ychkydyk/wedocodex install --dry-run`. After installation, open a new Codex chat and invoke `$wedocodex`. To apply startup context limits, open a new terminal session for your current project:
+
+```bash
+npx --yes github:ychkydyk/wedocodex run saver --autopilot --workspace .
+```
+
+The `run` command starts a model session. `install` only installs files; it does not activate a profile or change an existing chat. Existing installations can use `update --dry-run`, then `update`; modified owned files block replacement. All Python launcher actions are forwarded with argument arrays, without shell evaluation inside the wrapper.
+
+If you prefer not to use Node.js, use the standalone Python ZIP or Git instructions below. For reproducibility, append `#<commit SHA>` to the GitHub package specifier.
+
 ## Install and run
 
 Python 3.11+ and Codex CLI are required. Windows was tested with Codex 0.162.0-alpha.17.2. **macOS is experimental: the Terminal setup is documented, but no real Mac has been tested.** Linux remains untested. See the [macOS guide](MACOS.md).

@@ -1,0 +1,15 @@
+{
+  "name": "wedocodex",
+  "version": "0.3.0-beta.2",
+  "description": "Explicit Codex profiles, context budgets and Autopilot checkpoints",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/ychkydyk/wedocodex.git" },
+  "bin": { "wedocodex": "bin/wedocodex.cjs" },
+  "engines": { "node": ">=18" },
+  "files": [
+    "bin/wedocodex.cjs", "wedocodex.py", "MACOS.md", "README.ru.md",
+    "skill/SKILL.md", "skill/LICENSE", "skill/agents/openai.yaml",
+    "skill/references/ultra-config-map.md", "skill/scripts/wedocodex.py",
+    "skill/scripts/managed_install.py", "skill/scripts/runtime_profiles.py"
+  ]
+}
