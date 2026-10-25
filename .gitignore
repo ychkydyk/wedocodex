@@ -7,3 +7,7 @@ validation-*/
 dist/
 research/
 publication/
+
+# Artwork stays local unless explicitly selected for publication.
+/art/
+/assets/*.png
